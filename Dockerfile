@@ -1,6 +1,6 @@
-FROM alpine/git
-RUN git clone https://github.com/wolfcw/libfaketime /libfaketime \
- && apk -U add build-base
+FROM ubuntu:latest
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils build-essential sudo git ca-certificates
+RUN git clone https://github.com/wolfcw/libfaketime /libfaketime
 WORKDIR /libfaketime
 RUN make \
  && make install
@@ -14,9 +14,9 @@ RUN make \
 FROM scratch
 COPY --from=0 /usr/local/lib/faketime/libfaketimeMT.so.1 /faketime.so
 
-# Verify in Alpline
+# Verify in Ubuntu
 
-FROM alpine
+FROM ubuntu:latest
 COPY --from=1 /faketime.so /lib/faketime.so
 ENV LD_PRELOAD=/lib/faketime.so
 ENV FAKETIME="-15d" 
@@ -25,7 +25,7 @@ RUN date
 
 # Verify with Java
 
-FROM groovy:alpine
+FROM groovy:jre
 COPY --from=1 /faketime.so /lib/faketime.so
 ENV LD_PRELOAD=/lib/faketime.so
 ENV FAKETIME="-15d" 
